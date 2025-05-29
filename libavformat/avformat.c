@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'avformat__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFormatContext *, struct AVIOContext *)
+#define LORELIB_CFI_12(FP) LORELIB_CFI(12, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Various functions used by both muxers and demuxers
  * Copyright (c) 2000, 2001, 2002 Fabrice Bellard
@@ -869,7 +918,13 @@ int ff_format_io_close(AVFormatContext *s, AVIOContext **pb)
 {
     int ret = 0;
     if (*pb)
-        ret = s->io_close2(s, *pb);
+        ret = LORELIB_CFI_12(s->io_close2)(s, *pb);
     *pb = NULL;
     return ret;
 }
+
+//
+// Original code end
+//
+
+

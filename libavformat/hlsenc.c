@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'hlsenc__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFormatContext *, struct AVIOContext **, const char *, int, struct AVDictionary **)
+#define LORELIB_CFI_13(FP) LORELIB_CFI(13, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Apple HTTP Live Streaming segmenter
  * Copyright (c) 2012, Luca Barbato
@@ -295,7 +344,7 @@ static int hlsenc_io_open(AVFormatContext *s, AVIOContext **pb, const char *file
     int http_base_proto = filename ? ff_is_http_proto(filename) : 0;
     int err = AVERROR_MUXER_NOT_FOUND;
     if (!*pb || !http_base_proto || !hls->http_persistent) {
-        err = s->io_open(s, pb, filename, AVIO_FLAG_WRITE, options);
+        err = LORELIB_CFI_13(s->io_open)(s, pb, filename, AVIO_FLAG_WRITE, options);
 #if CONFIG_HTTP_PROTOCOL
     } else {
         URLContext *http_url_context = ffio_geturlcontext(*pb);
@@ -804,7 +853,7 @@ static int do_encrypt(AVFormatContext *s, VariantStream *vs)
 
         ff_data_to_hex(hls->key_string, key, sizeof(key), 0);
         set_http_options(s, &options, hls);
-        ret = s->io_open(s, &pb, hls->key_file, AVIO_FLAG_WRITE, &options);
+        ret = LORELIB_CFI_13(s->io_open)(s, &pb, hls->key_file, AVIO_FLAG_WRITE, &options);
         av_dict_free(&options);
         if (ret < 0)
             return ret;
@@ -825,7 +874,7 @@ static int hls_encryption_start(AVFormatContext *s,  VariantStream *vs)
     AVDictionary *options = NULL;
 
     set_http_options(s, &options, hls);
-    ret = s->io_open(s, &pb, hls->key_info_file, AVIO_FLAG_READ, &options);
+    ret = LORELIB_CFI_13(s->io_open)(s, &pb, hls->key_info_file, AVIO_FLAG_READ, &options);
     av_dict_free(&options);
     if (ret < 0) {
         av_log(hls, AV_LOG_ERROR,
@@ -855,7 +904,7 @@ static int hls_encryption_start(AVFormatContext *s,  VariantStream *vs)
     }
 
     set_http_options(s, &options, hls);
-    ret = s->io_open(s, &pb, vs->key_file, AVIO_FLAG_READ, &options);
+    ret = LORELIB_CFI_13(s->io_open)(s, &pb, vs->key_file, AVIO_FLAG_READ, &options);
     av_dict_free(&options);
     if (ret < 0) {
         av_log(hls, AV_LOG_ERROR, "error opening key file %s\n", vs->key_file);
@@ -2481,7 +2530,7 @@ static int64_t append_single_file(AVFormatContext *s, VariantStream *vs)
 
     hlsenc_io_close(s, &vs->out, vs->basename_tmp);
     filename = av_asprintf("%s.tmp", oc->url);
-    ret = s->io_open(s, &vs->out, filename, AVIO_FLAG_READ, NULL);
+    ret = LORELIB_CFI_13(s->io_open)(s, &vs->out, filename, AVIO_FLAG_READ, NULL);
     if (ret < 0) {
         av_free(filename);
         return ret;
@@ -3298,3 +3347,9 @@ const FFOutputFormat ff_hls_muxer = {
     .write_trailer  = hls_write_trailer,
     .deinit         = hls_deinit,
 };
+
+//
+// Original code end
+//
+
+

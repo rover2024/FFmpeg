@@ -1,3 +1,58 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'executor__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 28,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (const struct AVTask *, const struct AVTask *)
+#define LORELIB_CFI_27(FP) LORELIB_CFI(27, FP)
+
+// decl: int (const struct AVTask *, void *)
+#define LORELIB_CFI_28(FP) LORELIB_CFI(28, FP)
+
+// decl: int (struct AVTask *, void *, void *)
+#define LORELIB_CFI_5(FP) LORELIB_CFI(5, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Copyright (C) 2023 Nuo Mi
  *
@@ -81,13 +136,13 @@ static int run_one_task(AVExecutor *e, void *lc)
     AVTaskCallbacks *cb = &e->cb;
     AVTask **prev;
 
-    for (prev = &e->tasks; *prev && !cb->ready(*prev, cb->user_data); prev = &(*prev)->next)
+    for (prev = &e->tasks; *prev && !LORELIB_CFI_28(cb->ready)(*prev, cb->user_data); prev = &(*prev)->next)
         /* nothing */;
     if (*prev) {
         AVTask *t = remove_task(prev, *prev);
         if (e->thread_count > 0)
             ff_mutex_unlock(&e->lock);
-        cb->run(t, lc, cb->user_data);
+        LORELIB_CFI_5(cb->run)(t, lc, cb->user_data);
         if (e->thread_count > 0)
             ff_mutex_lock(&e->lock);
         return 1;
@@ -200,7 +255,7 @@ void av_executor_execute(AVExecutor *e, AVTask *t)
     if (e->thread_count)
         ff_mutex_lock(&e->lock);
     if (t) {
-        for (prev = &e->tasks; *prev && cb->priority_higher(*prev, t); prev = &(*prev)->next)
+        for (prev = &e->tasks; *prev && LORELIB_CFI_27(cb->priority_higher)(*prev, t); prev = &(*prev)->next)
             /* nothing */;
         add_task(prev, t);
     }
@@ -219,3 +274,9 @@ void av_executor_execute(AVExecutor *e, AVTask *t)
         e->recursive = false;
     }
 }
+
+//
+// Original code end
+//
+
+

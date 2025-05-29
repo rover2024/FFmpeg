@@ -1,3 +1,58 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'opt__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 28,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: const struct AVClass *(void **)
+#define LORELIB_CFI_22(FP) LORELIB_CFI(22, FP)
+
+// decl: int (struct AVOptionRanges **, void *, const char *, int)
+#define LORELIB_CFI_4(FP) LORELIB_CFI(4, FP)
+
+// decl: void *(void *, void *)
+#define LORELIB_CFI_21(FP) LORELIB_CFI(21, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * AVOptions
  * Copyright (c) 2005 Michael Niedermayer <michaelni@gmx.at>
@@ -2043,14 +2098,14 @@ void *av_opt_child_next(void *obj, void *prev)
 {
     const AVClass *c = *(AVClass **)obj;
     if (c->child_next)
-        return c->child_next(obj, prev);
+        return LORELIB_CFI_21(c->child_next)(obj, prev);
     return NULL;
 }
 
 const AVClass *av_opt_child_class_iterate(const AVClass *parent, void **iter)
 {
     if (parent->child_class_iterate)
-        return parent->child_class_iterate(iter);
+        return LORELIB_CFI_22(parent->child_class_iterate)(iter);
     return NULL;
 }
 
@@ -2476,7 +2531,7 @@ int av_opt_query_ranges(AVOptionRanges **ranges_arg, void *obj, const char *key,
     if (!callback)
         callback = av_opt_query_ranges_default;
 
-    ret = callback(ranges_arg, obj, key, flags);
+    ret = LORELIB_CFI_4(callback)(ranges_arg, obj, key, flags);
     if (ret >= 0) {
         if (!(flags & AV_OPT_MULTI_COMPONENT_RANGE))
             ret = 1;
@@ -2795,3 +2850,9 @@ int av_opt_serialize(void *obj, int opt_flags, int flags, char **buffer,
         return ret;
     return 0;
 }
+
+//
+// Original code end
+//
+
+

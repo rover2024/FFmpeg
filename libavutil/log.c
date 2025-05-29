@@ -1,3 +1,58 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'log__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 28,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: AVClassCategory (void *)
+#define LORELIB_CFI_1(FP) LORELIB_CFI(1, FP)
+
+// decl: const char *(void *)
+#define LORELIB_CFI_12(FP) LORELIB_CFI(12, FP)
+
+// decl: void (void *, int, const char *, struct __va_list_tag *)
+#define LORELIB_CFI_17(FP) LORELIB_CFI(17, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * log functions
  * Copyright (c) 2003 Michel Bardiaux
@@ -263,7 +318,7 @@ static int get_category(void *ptr){
         ||  avc->category >= AV_CLASS_CATEGORY_NB) return AV_CLASS_CATEGORY_NA + 16;
 
     if(avc->get_category)
-        return avc->get_category(ptr) + 16;
+        return LORELIB_CFI_1(avc->get_category)(ptr) + 16;
 
     return avc->category + 16;
 }
@@ -296,7 +351,7 @@ static const char *get_level_str(int level)
 
 static const char *item_name(void *obj, const AVClass *cls)
 {
-    return (cls->item_name ? cls->item_name : av_default_item_name)(obj);
+    return LORELIB_CFI_12((cls->item_name ? cls->item_name : av_default_item_name))(obj);
 }
 
 static void format_date_now(AVBPrint* bp_time, int include_date)
@@ -461,7 +516,7 @@ void av_vlog(void* avcl, int level, const char *fmt, va_list vl)
         avc->log_level_offset_offset && level >= AV_LOG_FATAL)
         level += *(int *) (((uint8_t *) avcl) + avc->log_level_offset_offset);
     if (log_callback)
-        log_callback(avcl, level, fmt, vl);
+        LORELIB_CFI_17(log_callback)(avcl, level, fmt, vl);
 }
 
 int av_log_get_level(void)
@@ -520,3 +575,9 @@ void avpriv_report_missing_feature(void *avc, const char *msg, ...)
     missing_feature_sample(0, avc, msg, argument_list);
     va_end(argument_list);
 }
+
+//
+// Original code end
+//
+
+

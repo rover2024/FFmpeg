@@ -1,3 +1,67 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'refstruct__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 28,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+int __attribute__((visibility("default")))  LoreTEST(int a);
+
+int LoreTEST(int a) {
+    return a + 1;
+}
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (AVRefStructOpaque, void *)
+#define LORELIB_CFI_26(FP) LORELIB_CFI(26, FP)
+
+// decl: void (AVRefStructOpaque)
+#define LORELIB_CFI_11(FP) LORELIB_CFI(11, FP)
+
+// decl: void (AVRefStructOpaque, void *)
+#define LORELIB_CFI_13(FP) LORELIB_CFI(13, FP)
+
+// decl: void (void *)
+#define LORELIB_CFI_16(FP) LORELIB_CFI(16, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * This file is part of FFmpeg.
  *
@@ -130,8 +194,8 @@ void av_refstruct_unref(void *objp)
     ref = get_refcount(obj);
     if (atomic_fetch_sub_explicit(&ref->refcount, 1, memory_order_acq_rel) == 1) {
         if (ref->free_cb)
-            ref->free_cb(ref->opaque, obj);
-        ref->free(ref);
+            LORELIB_CFI_13(ref->free_cb)(ref->opaque, obj);
+        LORELIB_CFI_16(ref->free)(ref);
     }
 
     return;
@@ -209,14 +273,14 @@ static void pool_free(AVRefStructPool *pool)
 {
     ff_mutex_destroy(&pool->mutex);
     if (pool->free_cb)
-        pool->free_cb(pool->opaque);
+        LORELIB_CFI_11(pool->free_cb)(pool->opaque);
     av_free(get_refcount(pool));
 }
 
 static void pool_free_entry(AVRefStructPool *pool, RefCount *ref)
 {
     if (pool->free_entry_cb)
-        pool->free_entry_cb(pool->opaque, get_userdata(ref));
+        LORELIB_CFI_13(pool->free_entry_cb)(pool->opaque, get_userdata(ref));
     av_free(ref);
 }
 
@@ -244,7 +308,7 @@ static void pool_reset_entry(AVRefStructOpaque opaque, void *entry)
 {
     AVRefStructPool *pool = opaque.nc;
 
-    pool->reset_cb(pool->opaque, entry);
+    LORELIB_CFI_13(pool->reset_cb)(pool->opaque, entry);
 }
 
 static int refstruct_pool_get_ext(void *datap, AVRefStructPool *pool)
@@ -273,12 +337,12 @@ static int refstruct_pool_get_ext(void *datap, AVRefStructPool *pool)
         ref = get_refcount(ret);
         ref->free = pool_return_entry;
         if (pool->init_cb) {
-            int err = pool->init_cb(pool->opaque, ret);
+            int err = LORELIB_CFI_26(pool->init_cb)(pool->opaque, ret);
             if (err < 0) {
                 if (pool->pool_flags & AV_REFSTRUCT_POOL_FLAG_RESET_ON_INIT_ERROR)
-                    pool->reset_cb(pool->opaque, ret);
+                    LORELIB_CFI_13(pool->reset_cb)(pool->opaque, ret);
                 if (pool->pool_flags & AV_REFSTRUCT_POOL_FLAG_FREE_ON_INIT_ERROR)
-                    pool->free_entry_cb(pool->opaque, ret);
+                    LORELIB_CFI_13(pool->free_entry_cb)(pool->opaque, ret);
                 av_free(ref);
                 return err;
             }
@@ -384,3 +448,9 @@ AVRefStructPool *av_refstruct_pool_alloc_ext_c(size_t size, unsigned flags,
     }
     return pool;
 }
+
+//
+// Original code end
+//
+
+

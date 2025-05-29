@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'tee__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: const char *(void *)
+#define LORELIB_CFI_9(FP) LORELIB_CFI(9, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Tee pseudo-muxer
  * Copyright (c) 2012 Nicolas George
@@ -419,7 +468,7 @@ static void log_slave(TeeSlave *slave, void *log_ctx, int log_level)
                av_get_media_type_string(st->codecpar->codec_type));
 
         bsf_name = bsf->filter->priv_class ?
-                   bsf->filter->priv_class->item_name(bsf) : bsf->filter->name;
+                   LORELIB_CFI_9(bsf->filter->priv_class->item_name)(bsf) : bsf->filter->name;
         av_log(log_ctx, log_level, " bsfs: %s\n", bsf_name);
     }
 }
@@ -613,3 +662,9 @@ const FFOutputFormat ff_tee_muxer = {
     .p.flags           = AVFMT_NOFILE | AVFMT_TS_NEGATIVE,
     .flags_internal    = FF_OFMT_FLAG_ALLOW_FLUSH,
 };
+
+//
+// Original code end
+//
+
+

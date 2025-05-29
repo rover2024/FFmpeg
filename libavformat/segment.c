@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'segment__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFormatContext *, struct AVIOContext **, const char *, int, struct AVDictionary **)
+#define LORELIB_CFI_13(FP) LORELIB_CFI(13, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Copyright (c) 2011, Luca Barbato
  *
@@ -250,7 +299,7 @@ static int segment_start(AVFormatContext *s, int write_header)
     if ((err = set_segment_filename(s)) < 0)
         return err;
 
-    if ((err = s->io_open(s, &oc->pb, oc->url, AVIO_FLAG_WRITE, NULL)) < 0) {
+    if ((err = LORELIB_CFI_13(s->io_open)(s, &oc->pb, oc->url, AVIO_FLAG_WRITE, NULL)) < 0) {
         av_log(s, AV_LOG_ERROR, "Failed to open segment '%s'\n", oc->url);
         return err;
     }
@@ -280,7 +329,7 @@ static int segment_list_open(AVFormatContext *s)
     int ret;
 
     snprintf(seg->temp_list_filename, sizeof(seg->temp_list_filename), seg->use_rename ? "%s.tmp" : "%s", seg->list);
-    ret = s->io_open(s, &seg->list_pb, seg->temp_list_filename, AVIO_FLAG_WRITE, NULL);
+    ret = LORELIB_CFI_13(s->io_open)(s, &seg->list_pb, seg->temp_list_filename, AVIO_FLAG_WRITE, NULL);
     if (ret < 0) {
         av_log(s, AV_LOG_ERROR, "Failed to open segment list '%s'\n", seg->list);
         return ret;
@@ -767,7 +816,7 @@ static int seg_init(AVFormatContext *s)
     oc = seg->avf;
 
     if (seg->write_header_trailer) {
-        if ((ret = s->io_open(s, &oc->pb,
+        if ((ret = LORELIB_CFI_13(s->io_open)(s, &oc->pb,
                               seg->header_filename ? seg->header_filename : oc->url,
                               AVIO_FLAG_WRITE, NULL)) < 0) {
             av_log(s, AV_LOG_ERROR, "Failed to open segment '%s'\n", oc->url);
@@ -837,7 +886,7 @@ static int seg_write_header(AVFormatContext *s)
             close_null_ctxp(&oc->pb);
             seg->is_nullctx = 0;
         }
-        if ((ret = oc->io_open(oc, &oc->pb, oc->url, AVIO_FLAG_WRITE, NULL)) < 0)
+        if ((ret = LORELIB_CFI_13(oc->io_open)(oc, &oc->pb, oc->url, AVIO_FLAG_WRITE, NULL)) < 0)
             return ret;
         if (!seg->individual_header_trailer)
             oc->pb->seekable = 0;
@@ -1116,3 +1165,9 @@ const FFOutputFormat ff_stream_segment_muxer = {
     .check_bitstream = seg_check_bitstream,
 };
 #endif
+
+//
+// Original code end
+//
+
+

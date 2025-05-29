@@ -1,3 +1,73 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'aviobuf__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (void *)
+#define LORELIB_CFI_15(FP) LORELIB_CFI(15, FP)
+
+// decl: int (void *, const unsigned char *, int)
+#define LORELIB_CFI_16(FP) LORELIB_CFI(16, FP)
+
+// decl: int (void *, const unsigned char *, int, enum AVIODataMarkerType, long)
+#define LORELIB_CFI_2(FP) LORELIB_CFI(2, FP)
+
+// decl: int (void *, int)
+#define LORELIB_CFI_3(FP) LORELIB_CFI(3, FP)
+
+// decl: int (void *, unsigned char *, int)
+#define LORELIB_CFI_4(FP) LORELIB_CFI(4, FP)
+
+// decl: long (void *, int, long, int)
+#define LORELIB_CFI_5(FP) LORELIB_CFI(5, FP)
+
+// decl: long (void *, long, int)
+#define LORELIB_CFI_6(FP) LORELIB_CFI(6, FP)
+
+// decl: unsigned long (unsigned long, const unsigned char *, unsigned int)
+#define LORELIB_CFI_7(FP) LORELIB_CFI(7, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * buffered I/O
  * Copyright (c) 2000,2001 Fabrice Bellard
@@ -134,12 +204,12 @@ static void writeout(AVIOContext *s, const uint8_t *data, int len)
     if (!s->error) {
         int ret = 0;
         if (s->write_data_type)
-            ret = s->write_data_type(s->opaque, data,
+            ret = LORELIB_CFI_2(s->write_data_type)(s->opaque, data,
                                      len,
                                      ctx->current_type,
                                      ctx->last_time);
         else if (s->write_packet)
-            ret = s->write_packet(s->opaque, data, len);
+            ret = LORELIB_CFI_16(s->write_packet)(s->opaque, data, len);
         if (ret < 0) {
             s->error = ret;
         } else {
@@ -166,7 +236,7 @@ static void flush_buffer(AVIOContext *s)
     if (s->write_flag && s->buf_ptr_max > s->buffer) {
         writeout(s, s->buffer, s->buf_ptr_max - s->buffer);
         if (s->update_checksum) {
-            s->checksum     = s->update_checksum(s->checksum, s->checksum_ptr,
+            s->checksum     = LORELIB_CFI_7(s->update_checksum)(s->checksum, s->checksum_ptr,
                                                  s->buf_ptr_max - s->checksum_ptr);
             s->checksum_ptr = s->buffer;
         }
@@ -242,7 +312,7 @@ int64_t avio_seek(AVIOContext *s, int64_t offset, int whence)
         return AVERROR(EINVAL);
 
     if ((whence & AVSEEK_SIZE))
-        return s->seek ? s->seek(s->opaque, offset, AVSEEK_SIZE) : AVERROR(ENOSYS);
+        return s->seek ? LORELIB_CFI_6(s->seek)(s->opaque, offset, AVSEEK_SIZE) : AVERROR(ENOSYS);
 
     buffer_size = s->buf_end - s->buffer;
     // pos is the absolute position that the beginning of s->buffer corresponds to in the file
@@ -264,7 +334,7 @@ int64_t avio_seek(AVIOContext *s, int64_t offset, int whence)
 
     short_seek = ctx->short_seek_threshold;
     if (ctx->short_seek_get) {
-        int tmp = ctx->short_seek_get(s->opaque);
+        int tmp = LORELIB_CFI_15(ctx->short_seek_get)(s->opaque);
         short_seek = FFMAX(tmp, short_seek);
     }
 
@@ -288,7 +358,7 @@ int64_t avio_seek(AVIOContext *s, int64_t offset, int whence)
         int64_t res;
 
         pos -= FFMIN(buffer_size>>1, pos);
-        if ((res = s->seek(s->opaque, pos, SEEK_SET)) < 0)
+        if ((res = LORELIB_CFI_6(s->seek)(s->opaque, pos, SEEK_SET)) < 0)
             return res;
         s->buf_end =
         s->buf_ptr = s->buffer;
@@ -303,7 +373,7 @@ int64_t avio_seek(AVIOContext *s, int64_t offset, int whence)
         }
         if (!s->seek)
             return AVERROR(EPIPE);
-        if ((res = s->seek(s->opaque, offset, SEEK_SET)) < 0)
+        if ((res = LORELIB_CFI_6(s->seek)(s->opaque, offset, SEEK_SET)) < 0)
             return res;
         ctx->seek_count++;
         if (!s->write_flag)
@@ -333,12 +403,12 @@ int64_t avio_size(AVIOContext *s)
 
     if (!s->seek)
         return AVERROR(ENOSYS);
-    size = s->seek(s->opaque, 0, AVSEEK_SIZE);
+    size = LORELIB_CFI_6(s->seek)(s->opaque, 0, AVSEEK_SIZE);
     if (size < 0) {
-        if ((size = s->seek(s->opaque, -1, SEEK_END)) < 0)
+        if ((size = LORELIB_CFI_6(s->seek)(s->opaque, -1, SEEK_END)) < 0)
             return size;
         size++;
-        s->seek(s->opaque, s->pos, SEEK_SET);
+        LORELIB_CFI_6(s->seek)(s->opaque, s->pos, SEEK_SET);
     }
     return size;
 }
@@ -501,7 +571,7 @@ static int read_packet_wrapper(AVIOContext *s, uint8_t *buf, int size)
 
     if (!s->read_packet)
         return AVERROR(EINVAL);
-    ret = s->read_packet(s->opaque, buf, size);
+    ret = LORELIB_CFI_4(s->read_packet)(s->opaque, buf, size);
     av_assert2(ret || s->max_packet_size);
     return ret;
 }
@@ -527,7 +597,7 @@ static void fill_buffer(AVIOContext *s)
 
     if (s->update_checksum && dst == s->buffer) {
         if (s->buf_end > s->checksum_ptr)
-            s->checksum = s->update_checksum(s->checksum, s->checksum_ptr,
+            s->checksum = LORELIB_CFI_7(s->update_checksum)(s->checksum, s->checksum_ptr,
                                              s->buf_end - s->checksum_ptr);
         s->checksum_ptr = s->buffer;
     }
@@ -582,7 +652,7 @@ unsigned long ff_crcA001_update(unsigned long checksum, const uint8_t *buf,
 
 unsigned long ffio_get_checksum(AVIOContext *s)
 {
-    s->checksum = s->update_checksum(s->checksum, s->checksum_ptr,
+    s->checksum = LORELIB_CFI_7(s->update_checksum)(s->checksum, s->checksum_ptr,
                                      s->buf_ptr - s->checksum_ptr);
     s->update_checksum = NULL;
     return s->checksum;
@@ -1015,7 +1085,7 @@ int ffio_copy_url_options(AVIOContext* pb, AVDictionary** avio_opts)
 static void update_checksum(AVIOContext *s)
 {
     if (s->update_checksum && s->buf_ptr > s->checksum_ptr) {
-        s->checksum = s->update_checksum(s->checksum, s->checksum_ptr,
+        s->checksum = LORELIB_CFI_7(s->update_checksum)(s->checksum, s->checksum_ptr,
                                          s->buf_ptr - s->checksum_ptr);
     }
 }
@@ -1226,7 +1296,7 @@ int avio_pause(AVIOContext *s, int pause)
 {
     if (!s->read_pause)
         return AVERROR(ENOSYS);
-    return s->read_pause(s->opaque, pause);
+    return LORELIB_CFI_3(s->read_pause)(s->opaque, pause);
 }
 
 int64_t avio_seek_time(AVIOContext *s, int stream_index,
@@ -1235,11 +1305,11 @@ int64_t avio_seek_time(AVIOContext *s, int stream_index,
     int64_t ret;
     if (!s->read_seek)
         return AVERROR(ENOSYS);
-    ret = s->read_seek(s->opaque, stream_index, timestamp, flags);
+    ret = LORELIB_CFI_5(s->read_seek)(s->opaque, stream_index, timestamp, flags);
     if (ret >= 0) {
         int64_t pos;
         s->buf_ptr = s->buf_end; // Flush buffer
-        pos = s->seek(s->opaque, 0, SEEK_CUR);
+        pos = LORELIB_CFI_6(s->seek)(s->opaque, 0, SEEK_CUR);
         if (pos >= 0)
             s->pos = pos;
         else if (pos != AVERROR(ENOSYS))
@@ -1477,3 +1547,9 @@ int ffio_close_null_buf(AVIOContext *s)
 
     return size;
 }
+
+//
+// Original code end
+//
+
+

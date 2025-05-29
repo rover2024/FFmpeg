@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'dsddec__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 19,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVCodecContext *, int (*)(struct AVCodecContext *, void *, int, int), void *, int *, int)
+#define LORELIB_CFI_17(FP) LORELIB_CFI(17, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Direct Stream Digital (DSD) decoder
  * based on BSD licensed dsd2pcm by Sebastian Gesemann
@@ -111,7 +160,7 @@ static int decode_frame(AVCodecContext *avctx, AVFrame *frame,
 
     td.frame = frame;
     td.avpkt = avpkt;
-    avctx->execute2(avctx, dsd_channel, &td, NULL, avctx->ch_layout.nb_channels);
+    LORELIB_CFI_17(avctx->execute2)(avctx, dsd_channel, &td, NULL, avctx->ch_layout.nb_channels);
 
     *got_frame_ptr = 1;
     return frame->nb_samples * avctx->ch_layout.nb_channels;
@@ -133,3 +182,9 @@ DSD_DECODER(DSD_LSBF, dsd_lsbf, "DSD (Direct Stream Digital), least significant 
 DSD_DECODER(DSD_MSBF, dsd_msbf, "DSD (Direct Stream Digital), most significant bit first")
 DSD_DECODER(DSD_MSBF_PLANAR, dsd_msbf_planar, "DSD (Direct Stream Digital), most significant bit first, planar")
 DSD_DECODER(DSD_LSBF_PLANAR, dsd_lsbf_planar, "DSD (Direct Stream Digital), least significant bit first, planar")
+
+//
+// Original code end
+//
+
+

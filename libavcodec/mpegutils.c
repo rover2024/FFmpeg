@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'mpegutils__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 19,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: void (struct AVCodecContext *, const struct AVFrame *, int *, int, int, int)
+#define LORELIB_CFI_9(FP) LORELIB_CFI(9, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Mpeg video formats-related defines and utility functions
  *
@@ -93,7 +142,7 @@ void ff_draw_horiz_band(AVCodecContext *avctx,
 
     emms_c();
 
-    avctx->draw_horiz_band(avctx, src, offset,
+    LORELIB_CFI_9(avctx->draw_horiz_band)(avctx, src, offset,
                             y, picture_structure, h);
 }
 
@@ -300,3 +349,9 @@ void ff_print_debug_info2(AVCodecContext *avctx, AVFrame *pict,
         av_bprint_finalize(&buf, NULL);
     }
 }
+
+//
+// Original code end
+//
+
+

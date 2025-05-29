@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'ituh263dec__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 19,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: void (short *)
+#define LORELIB_CFI_7(FP) LORELIB_CFI(7, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * ITU H.263 bitstream decoder
  * Copyright (c) 2000,2001 Fabrice Bellard
@@ -659,7 +708,7 @@ retry:
                 rl = &ff_rl_intra_aic;
                 i = 0;
                 s->gb= gb;
-                s->bdsp.clear_block(block);
+                LORELIB_CFI_7(s->bdsp.clear_block)(block);
                 goto retry;
             }
             av_log(s->avctx, AV_LOG_ERROR, "run overflow at %dx%d i:%d\n", s->mb_x, s->mb_y, s->mb_intra);
@@ -817,7 +866,7 @@ int ff_h263_decode_mb(MpegEncContext *s,
             }
         }while(cbpc == 20);
 
-        s->bdsp.clear_blocks(s->block[0]);
+        LORELIB_CFI_7(s->bdsp.clear_blocks)(s->block[0]);
 
         dquant = cbpc & 8;
         s->mb_intra = ((cbpc & 4) != 0);
@@ -916,7 +965,7 @@ int ff_h263_decode_mb(MpegEncContext *s,
 
         s->mb_intra = IS_INTRA(mb_type);
         if(HAS_CBP(mb_type)){
-            s->bdsp.clear_blocks(s->block[0]);
+            LORELIB_CFI_7(s->bdsp.clear_blocks)(s->block[0]);
             cbpc = get_vlc2(&s->gb, cbpc_b_vlc, CBPC_B_VLC_BITS, 1);
             if(s->mb_intra){
                 dquant = IS_QUANT(mb_type);
@@ -1016,7 +1065,7 @@ int ff_h263_decode_mb(MpegEncContext *s,
             }
         }while(cbpc == 8);
 
-        s->bdsp.clear_blocks(s->block[0]);
+        LORELIB_CFI_7(s->bdsp.clear_blocks)(s->block[0]);
 
         dquant = cbpc & 4;
         s->mb_intra = 1;
@@ -1387,3 +1436,9 @@ int ff_h263_decode_picture_header(MpegEncContext *s)
 
     return 0;
 }
+
+//
+// Original code end
+//
+
+

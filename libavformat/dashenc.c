@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'dashenc__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFormatContext *, struct AVIOContext **, const char *, int, struct AVDictionary **)
+#define LORELIB_CFI_13(FP) LORELIB_CFI(13, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * MPEG-DASH ISO BMFF segmenter
  * Copyright (c) 2014 Martin Storsjo
@@ -224,7 +273,7 @@ static int dashenc_io_open(AVFormatContext *s, AVIOContext **pb, char *filename,
     int http_base_proto = filename ? ff_is_http_proto(filename) : 0;
     int err = AVERROR_MUXER_NOT_FOUND;
     if (!*pb || !http_base_proto || !c->http_persistent) {
-        err = s->io_open(s, pb, filename, AVIO_FLAG_WRITE, options);
+        err = LORELIB_CFI_13(s->io_open)(s, pb, filename, AVIO_FLAG_WRITE, options);
 #if CONFIG_HTTP_PROTOCOL
     } else {
         URLContext *http_url_context = ffio_geturlcontext(*pb);
@@ -1581,7 +1630,7 @@ static int dash_init(AVFormatContext *s)
         if (!c->single_file) {
             if ((ret = avio_open_dyn_buf(&ctx->pb)) < 0)
                 return ret;
-            ret = s->io_open(s, &os->out, filename, AVIO_FLAG_WRITE, &opts);
+            ret = LORELIB_CFI_13(s->io_open)(s, &os->out, filename, AVIO_FLAG_WRITE, &opts);
         } else {
             ctx->url = av_strdup(filename);
             ret = avio_open2(&ctx->pb, filename, AVIO_FLAG_WRITE, NULL, &opts);
@@ -1801,7 +1850,7 @@ static void find_index_range(AVFormatContext *s, const char *full_path,
     AVIOContext *pb;
     int ret;
 
-    ret = s->io_open(s, &pb, full_path, AVIO_FLAG_READ, NULL);
+    ret = LORELIB_CFI_13(s->io_open)(s, &pb, full_path, AVIO_FLAG_READ, NULL);
     if (ret < 0)
         return;
     if (avio_seek(pb, pos, SEEK_SET) != pos) {
@@ -2425,3 +2474,9 @@ const FFOutputFormat ff_dash_muxer = {
     .deinit         = dash_free,
     .check_bitstream = dash_check_bitstream,
 };
+
+//
+// Original code end
+//
+
+

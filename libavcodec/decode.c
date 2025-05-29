@@ -1,3 +1,55 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'decode__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 19,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: enum AVPixelFormat (struct AVCodecContext *, const enum AVPixelFormat *)
+#define LORELIB_CFI_14(FP) LORELIB_CFI(14, FP)
+
+// decl: int (struct AVCodecContext *, struct AVFrame *, int)
+#define LORELIB_CFI_18(FP) LORELIB_CFI(18, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * generic decoding-related code
  *
@@ -1191,7 +1243,7 @@ static int hwaccel_init(AVCodecContext *avctx,
 void ff_hwaccel_uninit(AVCodecContext *avctx)
 {
     if (FF_HW_HAS_CB(avctx, uninit))
-        FF_HW_SIMPLE_CALL(avctx, uninit);
+        (ffhwaccel((avctx)->hwaccel)->uninit(avctx));
 
     av_freep(&avctx->internal->hwaccel_priv_data);
 
@@ -1229,7 +1281,7 @@ int ff_get_format(AVCodecContext *avctx, const enum AVPixelFormat *fmt)
         // Remove the previous hwaccel, if there was one.
         ff_hwaccel_uninit(avctx);
 
-        user_choice = avctx->get_format(avctx, choices);
+        user_choice = LORELIB_CFI_14(avctx->get_format)(avctx, choices);
         if (user_choice == AV_PIX_FMT_NONE) {
             // Explicitly chose nothing, give up.
             ret = AV_PIX_FMT_NONE;
@@ -1618,7 +1670,7 @@ static int attach_post_process_data(AVCodecContext *avctx, AVFrame *frame)
         frame->width  = dc->width;
         frame->height = dc->height;
 
-        ret = avctx->get_buffer2(avctx, frame_ctx->frame, 0);
+        ret = LORELIB_CFI_18(avctx->get_buffer2)(avctx, frame_ctx->frame, 0);
         if (ret < 0) {
             ff_lcevc_unref(frame_ctx);
             return ret;
@@ -1683,7 +1735,7 @@ int ff_get_buffer(AVCodecContext *avctx, AVFrame *frame, int flags)
         update_frame_props(avctx, frame);
     }
 
-    ret = avctx->get_buffer2(avctx, frame, flags);
+    ret = LORELIB_CFI_18(avctx->get_buffer2)(avctx, frame, flags);
     if (ret < 0)
         goto fail;
 
@@ -2248,3 +2300,9 @@ void ff_decode_internal_uninit(AVCodecContext *avctx)
 
     av_refstruct_unref(&dc->lcevc);
 }
+
+//
+// Original code end
+//
+
+

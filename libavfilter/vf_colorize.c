@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'vf_colorize__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 7,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFilterContext *, void *, int, int)
+#define LORELIB_CFI_5(FP) LORELIB_CFI(5, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * This file is part of FFmpeg.
  *
@@ -150,8 +199,8 @@ static int do_slice(AVFilterContext *ctx, void *arg, int jobnr, int nb_jobs)
 {
     ColorizeContext *s = ctx->priv;
 
-    s->do_plane_slice[0](ctx, arg, jobnr, nb_jobs);
-    s->do_plane_slice[1](ctx, arg, jobnr, nb_jobs);
+    LORELIB_CFI_5(s->do_plane_slice[0])(ctx, arg, jobnr, nb_jobs);
+    LORELIB_CFI_5(s->do_plane_slice[1])(ctx, arg, jobnr, nb_jobs);
 
     return 0;
 }
@@ -283,3 +332,9 @@ const FFFilter ff_vf_colorize = {
     FILTER_PIXFMTS_ARRAY(pixel_fmts),
     .process_command = ff_filter_process_command,
 };
+
+//
+// Original code end
+//
+
+

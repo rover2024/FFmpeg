@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'mlvdec__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFormatContext *, struct AVIOContext **, const char *, int, struct AVDictionary **)
+#define LORELIB_CFI_13(FP) LORELIB_CFI(13, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Magic Lantern Video (MLV) demuxer
  * Copyright (c) 2014 Peter Ross
@@ -388,7 +437,7 @@ static int read_header(AVFormatContext *avctx)
 
         for (i = 0; i < 100; i++) {
             snprintf(filename + strlen(filename) - 2, 3, "%02d", i);
-            if (avctx->io_open(avctx, &mlv->pb[i], filename, AVIO_FLAG_READ, NULL) < 0)
+            if (LORELIB_CFI_13(avctx->io_open)(avctx, &mlv->pb[i], filename, AVIO_FLAG_READ, NULL) < 0)
                 break;
             if (check_file_header(mlv->pb[i], guid) < 0) {
                 av_log(avctx, AV_LOG_WARNING, "ignoring %s; bad format or guid mismatch\n", filename);
@@ -637,3 +686,9 @@ const FFInputFormat ff_mlv_demuxer = {
     .read_close     = read_close,
     .read_seek      = read_seek,
 };
+
+//
+// Original code end
+//
+
+

@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'vf_avgblur__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 7,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFilterContext *, void *, int, int)
+#define LORELIB_CFI_5(FP) LORELIB_CFI(5, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Copyright (c) 2016 Paul B Mahol
  *
@@ -243,7 +292,7 @@ static void averageiir2d(AVFilterContext *ctx, AVFrame *in, AVFrame *out, int pl
     td.linesize = in->linesize[plane];
     td.dptr = out->data[plane];
     td.dlinesize = out->linesize[plane];
-    s->filter[slow](ctx, &td, 0, 0);
+    LORELIB_CFI_5(s->filter[slow])(ctx, &td, 0, 0);
 }
 
 static const enum AVPixelFormat pix_fmts[] = {
@@ -346,3 +395,9 @@ const FFFilter ff_vf_avgblur = {
     FILTER_PIXFMTS_ARRAY(pix_fmts),
     .process_command = process_command,
 };
+
+//
+// Original code end
+//
+
+

@@ -1,3 +1,61 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'buffer__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 28,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: struct AVBufferRef *(unsigned long)
+#define LORELIB_CFI_9(FP) LORELIB_CFI(9, FP)
+
+// decl: struct AVBufferRef *(void *, unsigned long)
+#define LORELIB_CFI_10(FP) LORELIB_CFI(10, FP)
+
+// decl: void (void *)
+#define LORELIB_CFI_16(FP) LORELIB_CFI(16, FP)
+
+// decl: void (void *, unsigned char *)
+#define LORELIB_CFI_18(FP) LORELIB_CFI(18, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * This file is part of FFmpeg.
  *
@@ -130,7 +188,7 @@ static void buffer_replace(AVBufferRef **dst, AVBufferRef **src)
         /* b->free below might already free the structure containing *b,
          * so we have to read the flag now to avoid use-after-free. */
         int free_avbuffer = !(b->flags_internal & BUFFER_FLAG_NO_FREE);
-        b->free(b->opaque, b->data);
+        LORELIB_CFI_18(b->free)(b->opaque, b->data);
         if (free_avbuffer)
             av_free(b);
     }
@@ -305,7 +363,7 @@ static void buffer_pool_flush(AVBufferPool *pool)
         BufferPoolEntry *buf = pool->pool;
         pool->pool = buf->next;
 
-        buf->free(buf->opaque, buf->data);
+        LORELIB_CFI_18(buf->free)(buf->opaque, buf->data);
         av_freep(&buf);
     }
 }
@@ -320,7 +378,7 @@ static void buffer_pool_free(AVBufferPool *pool)
     ff_mutex_destroy(&pool->mutex);
 
     if (pool->pool_free)
-        pool->pool_free(pool->opaque);
+        LORELIB_CFI_16(pool->pool_free)(pool->opaque);
 
     av_freep(&pool);
 }
@@ -365,8 +423,8 @@ static AVBufferRef *pool_alloc_buffer(AVBufferPool *pool)
 
     av_assert0(pool->alloc || pool->alloc2);
 
-    ret = pool->alloc2 ? pool->alloc2(pool->opaque, pool->size) :
-                         pool->alloc(pool->size);
+    ret = pool->alloc2 ? LORELIB_CFI_10(pool->alloc2)(pool->opaque, pool->size) :
+                         LORELIB_CFI_9(pool->alloc)(pool->size);
     if (!ret)
         return NULL;
 
@@ -420,3 +478,9 @@ void *av_buffer_pool_buffer_get_opaque(const AVBufferRef *ref)
     av_assert0(buf);
     return buf->opaque;
 }
+
+//
+// Original code end
+//
+
+

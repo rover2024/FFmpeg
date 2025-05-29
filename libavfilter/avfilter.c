@@ -1,3 +1,55 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'avfilter__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 7,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFilterContext *, int (*)(struct AVFilterContext *, void *, int, int), void *, int *, int)
+#define LORELIB_CFI_4(FP) LORELIB_CFI(4, FP)
+
+// decl: int (struct AVFilterContext *, void *, int, int)
+#define LORELIB_CFI_5(FP) LORELIB_CFI(5, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * filter layer
  * Copyright (c) 2007 Bobby Bingham
@@ -688,7 +740,7 @@ static int default_execute(AVFilterContext *ctx, avfilter_action_func *func, voi
     int i;
 
     for (i = 0; i < nb_jobs; i++) {
-        int r = func(ctx, arg, i, nb_jobs);
+        int r = LORELIB_CFI_5(func)(ctx, arg, i, nb_jobs);
         if (ret)
             ret[i] = r;
     }
@@ -1668,5 +1720,11 @@ int ff_outlink_frame_wanted(AVFilterLink *link)
 int ff_filter_execute(AVFilterContext *ctx, avfilter_action_func *func,
                       void *arg, int *ret, int nb_jobs)
 {
-    return fffilterctx(ctx)->execute(ctx, func, arg, ret, nb_jobs);
+    return LORELIB_CFI_4(fffilterctx(ctx)->execute)(ctx, func, arg, ret, nb_jobs);
 }
+
+//
+// Original code end
+//
+
+

@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'mjpegdec__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 19,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: void (short *)
+#define LORELIB_CFI_7(FP) LORELIB_CFI(7, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * MJPEG decoder
  * Copyright (c) 2000, 2001 Fabrice Bellard
@@ -888,7 +937,7 @@ static int decode_dc_progressive(MJpegDecodeContext *s, int16_t *block,
                                  uint16_t *quant_matrix, int Al)
 {
     unsigned val;
-    s->bdsp.clear_block(block);
+    LORELIB_CFI_7(s->bdsp.clear_block)(block);
     val = mjpeg_decode_dc(s, dc_index);
     if (val == 0xfffff) {
         av_log(s->avctx, AV_LOG_ERROR, "error dc\n");
@@ -1532,7 +1581,7 @@ static int mjpeg_decode_scan(MJpegDecodeContext *s, int nb_components, int Ah,
                                                 linesize[c], s->avctx->lowres);
 
                         } else {
-                            s->bdsp.clear_block(s->block);
+                            LORELIB_CFI_7(s->bdsp.clear_block)(s->block);
                             if (decode_block(s, s->block, i,
                                              s->dc_index[i], s->ac_index[i],
                                              s->quant_matrixes[s->quant_sindex[i]]) < 0) {
@@ -1780,9 +1829,7 @@ next_field:
         av_assert0(bytes_to_start >= 0 &&
                    s->raw_scan_buffer_size >= bytes_to_start);
 
-        ret = FF_HW_CALL(s->avctx, decode_slice,
-                         s->raw_scan_buffer      + bytes_to_start,
-                         s->raw_scan_buffer_size - bytes_to_start);
+        ret = (ffhwaccel((s->avctx)->hwaccel)->decode_slice((s->avctx), s->raw_scan_buffer + bytes_to_start, s->raw_scan_buffer_size - bytes_to_start));
         if (ret < 0)
             return ret;
 
@@ -2561,7 +2608,7 @@ eoi_parser:
                 goto the_end_no_picture;
             }
             if (avctx->hwaccel) {
-                ret = FF_HW_SIMPLE_CALL(avctx, end_frame);
+                ret = (ffhwaccel((avctx)->hwaccel)->end_frame(avctx));
                 if (ret < 0)
                     return ret;
 
@@ -3127,3 +3174,9 @@ const FFCodec ff_smvjpeg_decoder = {
                       FF_CODEC_CAP_INIT_CLEANUP,
 };
 #endif
+
+//
+// Original code end
+//
+
+

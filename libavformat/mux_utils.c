@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'mux_utils__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFormatContext *, struct AVIOContext **, const char *, int, struct AVDictionary **)
+#define LORELIB_CFI_13(FP) LORELIB_CFI(13, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Various muxing utility functions
  * Copyright (c) 2000, 2001, 2002 Fabrice Bellard
@@ -87,7 +136,7 @@ int ff_format_shift_data(AVFormatContext *s, int64_t read_start, int shift_size)
      * writing, so we re-open the same output, but for reading. It also avoids
      * a read/seek/write/seek back and forth. */
     avio_flush(s->pb);
-    ret = s->io_open(s, &read_pb, s->url, AVIO_FLAG_READ, NULL);
+    ret = LORELIB_CFI_13(s->io_open)(s, &read_pb, s->url, AVIO_FLAG_READ, NULL);
     if (ret < 0) {
         av_log(s, AV_LOG_ERROR, "Unable to re-open %s output file for shifting data\n", s->url);
         goto end;
@@ -130,7 +179,7 @@ int ff_format_output_open(AVFormatContext *s, const char *url, AVDictionary **op
         return AVERROR(EINVAL);
 
     if (!(s->oformat->flags & AVFMT_NOFILE))
-        return s->io_open(s, &s->pb, url, AVIO_FLAG_WRITE, options);
+        return LORELIB_CFI_13(s->io_open)(s, &s->pb, url, AVIO_FLAG_WRITE, options);
     return 0;
 }
 
@@ -159,3 +208,9 @@ int ff_standardize_creation_time(AVFormatContext *s)
         return ff_dict_set_timestamp(&s->metadata, "creation_time", timestamp);
     return ret;
 }
+
+//
+// Original code end
+//
+
+

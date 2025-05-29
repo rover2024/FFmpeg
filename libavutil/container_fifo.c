@@ -1,3 +1,58 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'container_fifo__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 28,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (void *, void *, void *, unsigned int)
+#define LORELIB_CFI_8(FP) LORELIB_CFI(8, FP)
+
+// decl: void (void *, void *)
+#define LORELIB_CFI_19(FP) LORELIB_CFI(19, FP)
+
+// decl: void *(void *)
+#define LORELIB_CFI_20(FP) LORELIB_CFI(20, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * This file is part of FFmpeg.
  *
@@ -41,7 +96,7 @@ static int container_fifo_init_entry(AVRefStructOpaque opaque, void *obj)
     AVContainerFifo *cf = opaque.nc;
     void **pobj = obj;
 
-    *pobj = cf->container_alloc(cf->opaque);
+    *pobj = LORELIB_CFI_20(cf->container_alloc)(cf->opaque);
     if (!*pobj)
         return AVERROR(ENOMEM);
 
@@ -51,13 +106,13 @@ static int container_fifo_init_entry(AVRefStructOpaque opaque, void *obj)
 static void container_fifo_reset_entry(AVRefStructOpaque opaque, void *obj)
 {
     AVContainerFifo *cf = opaque.nc;
-    cf->container_reset(cf->opaque, *(void**)obj);
+    LORELIB_CFI_19(cf->container_reset)(cf->opaque, *(void**)obj);
 }
 
 static void container_fifo_free_entry(AVRefStructOpaque opaque, void *obj)
 {
     AVContainerFifo *cf = opaque.nc;
-    cf->container_free(cf->opaque, *(void**)obj);
+    LORELIB_CFI_19(cf->container_free)(cf->opaque, *(void**)obj);
 }
 
 AVContainerFifo*
@@ -128,7 +183,7 @@ int av_container_fifo_read(AVContainerFifo *cf, void *obj, unsigned flags)
     if (ret < 0)
         return ret;
 
-    ret = cf->fifo_transfer(cf->opaque, obj, *psrc, flags);
+    ret = LORELIB_CFI_8(cf->fifo_transfer)(cf->opaque, obj, *psrc, flags);
     av_refstruct_unref(&psrc);
 
     return ret;
@@ -168,7 +223,7 @@ int av_container_fifo_write(AVContainerFifo *cf, void *obj, unsigned flags)
     if (!pdst)
         return AVERROR(ENOMEM);
 
-    ret = cf->fifo_transfer(cf->opaque, *pdst, obj, flags);
+    ret = LORELIB_CFI_8(cf->fifo_transfer)(cf->opaque, *pdst, obj, flags);
     if (ret < 0)
         goto fail;
 
@@ -217,3 +272,9 @@ AVContainerFifo *av_container_fifo_alloc_avframe(unsigned flags)
     return av_container_fifo_alloc(NULL, frame_alloc, frame_reset, frame_free,
                                    frame_transfer, 0);
 }
+
+//
+// Original code end
+//
+
+

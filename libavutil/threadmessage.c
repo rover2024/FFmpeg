@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'threadmessage__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 28,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: void (void *)
+#define LORELIB_CFI_16(FP) LORELIB_CFI(16, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Copyright (c) 2014 Nicolas George
  *
@@ -218,7 +267,7 @@ static int free_func_wrap(void *arg, void *buf, size_t *nb_elems)
     AVThreadMessageQueue *mq = arg;
     uint8_t *msg = buf;
     for (size_t i = 0; i < *nb_elems; i++)
-        mq->free_func(msg + i * mq->elsize);
+        LORELIB_CFI_16(mq->free_func)(msg + i * mq->elsize);
     return 0;
 }
 #endif
@@ -238,3 +287,9 @@ void av_thread_message_flush(AVThreadMessageQueue *mq)
     pthread_mutex_unlock(&mq->lock);
 #endif /* HAVE_THREADS */
 }
+
+//
+// Original code end
+//
+
+

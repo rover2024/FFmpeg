@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'webm_chunk__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFormatContext *, struct AVIOContext **, const char *, int, struct AVDictionary **)
+#define LORELIB_CFI_13(FP) LORELIB_CFI(13, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Copyright (c) 2015, Vignesh Venkatasubramanian
  *
@@ -99,7 +148,7 @@ static int webm_chunk_init(AVFormatContext *s)
     if (wc->http_method)
         if ((ret = av_dict_set(&dict, "method", wc->http_method, 0)) < 0)
             return ret;
-    ret = s->io_open(s, &oc->pb, oc->url, AVIO_FLAG_WRITE, &dict);
+    ret = LORELIB_CFI_13(s->io_open)(s, &oc->pb, oc->url, AVIO_FLAG_WRITE, &dict);
     av_dict_free(&dict);
     if (ret < 0)
         return ret;
@@ -202,7 +251,7 @@ static int chunk_end(AVFormatContext *s, int flush)
     if (wc->http_method)
         if ((ret = av_dict_set(&options, "method", wc->http_method, 0)) < 0)
             goto fail;
-    ret = s->io_open(s, &pb, filename, AVIO_FLAG_WRITE, &options);
+    ret = LORELIB_CFI_13(s->io_open)(s, &pb, filename, AVIO_FLAG_WRITE, &options);
     av_dict_free(&options);
     if (ret < 0)
         goto fail;
@@ -308,3 +357,9 @@ const FFOutputFormat ff_webm_chunk_muxer = {
     .write_trailer  = webm_chunk_write_trailer,
     .deinit         = webm_chunk_deinit,
 };
+
+//
+// Original code end
+//
+
+

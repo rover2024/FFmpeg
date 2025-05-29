@@ -1,3 +1,55 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'avcodec__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 19,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVCodecContext *, void *)
+#define LORELIB_CFI_2(FP) LORELIB_CFI(2, FP)
+
+// decl: int (struct AVCodecContext *, void *, int, int)
+#define LORELIB_CFI_3(FP) LORELIB_CFI(3, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * AVCodecContext functions for libavcodec
  *
@@ -75,7 +127,7 @@ int avcodec_default_execute(AVCodecContext *c, int (*func)(AVCodecContext *c2, v
 
     for (i = 0; i < count; i++) {
         size_t offset = i * size;
-        int r = func(c, FF_PTR_ADD((char *)arg, offset));
+        int r = LORELIB_CFI_2(func)(c, FF_PTR_ADD((char *)arg, offset));
         if (ret)
             ret[i] = r;
     }
@@ -88,7 +140,7 @@ int avcodec_default_execute2(AVCodecContext *c, int (*func)(AVCodecContext *c2, 
     int i;
 
     for (i = 0; i < count; i++) {
-        int r = func(c, arg, i, 0);
+        int r = LORELIB_CFI_3(func)(c, arg, i, 0);
         if (ret)
             ret[i] = r;
     }
@@ -803,3 +855,9 @@ int avcodec_get_supported_config(const AVCodecContext *avctx, const AVCodec *cod
         return ff_default_get_supported_config(avctx, codec, config, flags, out, out_num);
     }
 }
+
+//
+// Original code end
+//
+
+

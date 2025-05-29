@@ -1,3 +1,58 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'eval__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 28,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: double (double)
+#define LORELIB_CFI_23(FP) LORELIB_CFI(23, FP)
+
+// decl: double (void *, double)
+#define LORELIB_CFI_24(FP) LORELIB_CFI(24, FP)
+
+// decl: double (void *, double, double)
+#define LORELIB_CFI_25(FP) LORELIB_CFI(25, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Copyright (c) 2002-2006 Michael Niedermayer <michaelni@gmx.at>
  * Copyright (c) 2006 Oded Shimon <ods15@ods15.dyndns.org>
@@ -188,9 +243,9 @@ static double eval_expr(Parser *p, AVExpr *e)
     switch (e->type) {
         case e_value:  return e->value;
         case e_const:  return e->value * p->const_values[e->const_index];
-        case e_func0:  return e->value * e->a.func0(eval_expr(p, e->param[0]));
-        case e_func1:  return e->value * e->a.func1(p->opaque, eval_expr(p, e->param[0]));
-        case e_func2:  return e->value * e->a.func2(p->opaque, eval_expr(p, e->param[0]), eval_expr(p, e->param[1]));
+        case e_func0:  return e->value * LORELIB_CFI_23(e->a.func0)(eval_expr(p, e->param[0]));
+        case e_func1:  return e->value * LORELIB_CFI_24(e->a.func1)(p->opaque, eval_expr(p, e->param[0]));
+        case e_func2:  return e->value * LORELIB_CFI_25(e->a.func2)(p->opaque, eval_expr(p, e->param[0]), eval_expr(p, e->param[1]));
         case e_squish: return 1/(1+exp(4*eval_expr(p, e->param[0])));
         case e_gauss: { double d = eval_expr(p, e->param[0]); return exp(-d*d/2)/sqrt(2*M_PI); }
         case e_ld:     return e->value * p->var[av_clip(eval_expr(p, e->param[0]), 0, VARS-1)];
@@ -819,3 +874,9 @@ int av_expr_parse_and_eval(double *d, const char *s,
     av_expr_free(e);
     return isnan(*d) ? AVERROR(EINVAL) : 0;
 }
+
+//
+// Original code end
+//
+
+

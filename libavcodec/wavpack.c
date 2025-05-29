@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'wavpack__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 19,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVCodecContext *, int (*)(struct AVCodecContext *, void *, int, int), void *, int *, int)
+#define LORELIB_CFI_17(FP) LORELIB_CFI(17, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * WavPack lossless audio decoder
  * Copyright (c) 2006,2011 Konstantin Shishkov
@@ -1686,7 +1735,7 @@ static int wavpack_decode_frame(AVCodecContext *avctx, AVFrame *frame,
     if (s->dsdctx) {
         if (s->prev_progress)
             ff_thread_progress_await(s->prev_progress, INT_MAX);
-        avctx->execute2(avctx, dsd_channel, frame, NULL, avctx->ch_layout.nb_channels);
+        LORELIB_CFI_17(avctx->execute2)(avctx, dsd_channel, frame, NULL, avctx->ch_layout.nb_channels);
         if (s->curr_progress)
             ff_thread_progress_report(s->curr_progress, INT_MAX);
     }
@@ -1720,3 +1769,9 @@ const FFCodec ff_wavpack_decoder = {
                       AV_CODEC_CAP_SLICE_THREADS | AV_CODEC_CAP_CHANNEL_CONF,
     .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP,
 };
+
+//
+// Original code end
+//
+
+

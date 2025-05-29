@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'smoothstreamingenc__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFormatContext *, struct AVIOContext **, const char *, int, struct AVDictionary **)
+#define LORELIB_CFI_13(FP) LORELIB_CFI(13, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Live smooth streaming fragmenter
  * Copyright (c) 2012 Martin Storsjo
@@ -211,7 +260,7 @@ static int write_manifest(AVFormatContext *s, int final)
 
     snprintf(filename, sizeof(filename), "%s/Manifest", s->url);
     snprintf(temp_filename, sizeof(temp_filename), "%s/Manifest.tmp", s->url);
-    ret = s->io_open(s, &out, temp_filename, AVIO_FLAG_WRITE, NULL);
+    ret = LORELIB_CFI_13(s->io_open)(s, &out, temp_filename, AVIO_FLAG_WRITE, NULL);
     if (ret < 0) {
         av_log(s, AV_LOG_ERROR, "Unable to open %s for writing\n", temp_filename);
         return ret;
@@ -396,7 +445,7 @@ static int parse_fragment(AVFormatContext *s, const char *filename, int64_t *sta
     AVIOContext *in;
     int ret;
     uint32_t len;
-    if ((ret = s->io_open(s, &in, filename, AVIO_FLAG_READ, NULL)) < 0)
+    if ((ret = LORELIB_CFI_13(s->io_open)(s, &in, filename, AVIO_FLAG_READ, NULL)) < 0)
         return ret;
     ret = AVERROR(EIO);
     *moof_size = avio_rb32(in);
@@ -473,9 +522,9 @@ static int copy_moof(AVFormatContext *s, const char* infile, const char *outfile
 {
     AVIOContext *in, *out;
     int ret = 0;
-    if ((ret = s->io_open(s, &in, infile, AVIO_FLAG_READ, NULL)) < 0)
+    if ((ret = LORELIB_CFI_13(s->io_open)(s, &in, infile, AVIO_FLAG_READ, NULL)) < 0)
         return ret;
-    if ((ret = s->io_open(s, &out, outfile, AVIO_FLAG_WRITE, NULL)) < 0) {
+    if ((ret = LORELIB_CFI_13(s->io_open)(s, &out, outfile, AVIO_FLAG_WRITE, NULL)) < 0) {
         ff_format_io_close(s, &in);
         return ret;
     }
@@ -653,3 +702,9 @@ const FFOutputFormat ff_smoothstreaming_muxer = {
     .write_trailer  = ism_write_trailer,
     .deinit         = ism_free,
 };
+
+//
+// Original code end
+//
+
+

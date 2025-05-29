@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'fifo__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 28,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (void *, void *, unsigned long *)
+#define LORELIB_CFI_7(FP) LORELIB_CFI(7, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * a very simple circular buffer FIFO implementation
  * Copyright (c) 2000, 2001, 2002 Fabrice Bellard
@@ -164,7 +213,7 @@ static int fifo_write_common(AVFifo *f, const uint8_t *buf, size_t *nb_elems,
         uint8_t *wptr = f->buffer + offset_w * f->elem_size;
 
         if (read_cb) {
-            ret = read_cb(opaque, wptr, &len);
+            ret = LORELIB_CFI_7(read_cb)(opaque, wptr, &len);
             if (ret < 0 || len == 0)
                 break;
         } else {
@@ -219,7 +268,7 @@ static int fifo_peek_common(const AVFifo *f, uint8_t *buf, size_t *nb_elems,
         uint8_t *rptr = f->buffer + offset_r * f->elem_size;
 
         if (write_cb) {
-            ret = write_cb(opaque, rptr, &len);
+            ret = LORELIB_CFI_7(write_cb)(opaque, rptr, &len);
             if (ret < 0 || len == 0)
                 break;
         } else {
@@ -290,3 +339,9 @@ void av_fifo_freep2(AVFifo **f)
         av_freep(f);
     }
 }
+
+//
+// Original code end
+//
+
+

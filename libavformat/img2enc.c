@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'img2enc__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFormatContext *, struct AVIOContext **, const char *, int, struct AVDictionary **)
+#define LORELIB_CFI_13(FP) LORELIB_CFI(13, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Image format
  * Copyright (c) 2000, 2001, 2002 Fabrice Bellard
@@ -182,7 +231,7 @@ static int write_packet(AVFormatContext *s, AVPacket *pkt)
         av_dict_copy(&options, img->protocol_opts, 0);
         snprintf(img->tmp[i], sizeof(img->tmp[i]), "%s.tmp", filename);
         av_strlcpy(img->target[i], filename, sizeof(img->target[i]));
-        if (s->io_open(s, &pb[i], img->use_rename ? img->tmp[i] : filename, AVIO_FLAG_WRITE, &options) < 0) {
+        if (LORELIB_CFI_13(s->io_open)(s, &pb[i], img->use_rename ? img->tmp[i] : filename, AVIO_FLAG_WRITE, &options) < 0) {
             av_log(s, AV_LOG_ERROR, "Could not open file : %s\n", img->use_rename ? img->tmp[i] : filename);
             ret = AVERROR(EIO);
             goto fail;
@@ -298,3 +347,9 @@ const FFOutputFormat ff_image2pipe_muxer = {
     .p.flags        = AVFMT_NOTIMESTAMPS | AVFMT_NODIMENSIONS
 };
 #endif
+
+//
+// Original code end
+//
+
+

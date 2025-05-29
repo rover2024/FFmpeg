@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'encode__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 19,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVCodecContext *, struct AVPacket *, int)
+#define LORELIB_CFI_19(FP) LORELIB_CFI(19, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * generic encoding-related code
  *
@@ -113,7 +162,7 @@ int ff_get_encode_buffer(AVCodecContext *avctx, AVPacket *avpkt, int64_t size, i
     av_assert0(!avpkt->data && !avpkt->buf);
 
     avpkt->size = size;
-    ret = avctx->get_encode_buffer(avctx, avpkt, flags);
+    ret = LORELIB_CFI_19(avctx->get_encode_buffer)(avctx, avpkt, flags);
     if (ret < 0)
         goto fail;
 
@@ -926,3 +975,9 @@ int ff_check_codec_matrices(AVCodecContext *avctx, unsigned types, uint16_t min,
     }
     return 0;
 }
+
+//
+// Original code end
+//
+
+

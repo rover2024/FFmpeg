@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'hls__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFormatContext *, struct AVIOContext **, const char *, int, struct AVDictionary **)
+#define LORELIB_CFI_13(FP) LORELIB_CFI(13, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Apple HTTP Live Streaming demuxer
  * Copyright (c) 2010 Martin Storsjo
@@ -708,10 +757,10 @@ static int open_url(AVFormatContext *s, AVIOContext **pb, const char *url,
                     url, av_err2str(ret));
             av_dict_copy(&tmp, *opts, 0);
             av_dict_copy(&tmp, opts2, 0);
-            ret = s->io_open(s, pb, url, AVIO_FLAG_READ, &tmp);
+            ret = LORELIB_CFI_13(s->io_open)(s, pb, url, AVIO_FLAG_READ, &tmp);
         }
     } else {
-        ret = s->io_open(s, pb, url, AVIO_FLAG_READ, &tmp);
+        ret = LORELIB_CFI_13(s->io_open)(s, pb, url, AVIO_FLAG_READ, &tmp);
     }
     if (ret >= 0) {
         // update cookies on http response with setcookies.
@@ -823,7 +872,7 @@ static int parse_playlist(HLSContext *c, const char *url,
         if (c->http_persistent)
             av_dict_set(&opts, "multiple_requests", "1", 0);
 
-        ret = c->ctx->io_open(c->ctx, &in, url, AVIO_FLAG_READ, &opts);
+        ret = LORELIB_CFI_13(c->ctx->io_open)(c->ctx, &in, url, AVIO_FLAG_READ, &opts);
         av_dict_free(&opts);
         if (ret < 0)
             return ret;
@@ -2847,3 +2896,9 @@ const FFInputFormat ff_hls_demuxer = {
     .read_close     = hls_close,
     .read_seek      = hls_read_seek,
 };
+
+//
+// Original code end
+//
+
+

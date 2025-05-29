@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'img2dec__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFormatContext *, struct AVIOContext **, const char *, int, struct AVDictionary **)
+#define LORELIB_CFI_13(FP) LORELIB_CFI(13, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Image format
  * Copyright (c) 2000, 2001, 2002 Fabrice Bellard
@@ -445,7 +494,7 @@ int ff_img_read_packet(AVFormatContext *s1, AVPacket *pkt)
                 !s->loop &&
                 !s->split_planes) {
                 f[i] = s1->pb;
-            } else if (s1->io_open(s1, &f[i], filename, AVIO_FLAG_READ, NULL) < 0) {
+            } else if (LORELIB_CFI_13(s1->io_open)(s1, &f[i], filename, AVIO_FLAG_READ, NULL) < 0) {
                 if (i >= 1)
                     break;
                 av_log(s1, AV_LOG_ERROR, "Could not open file : %s\n",
@@ -1270,3 +1319,9 @@ IMAGEAUTO_DEMUXER(webp,      WEBP)
 IMAGEAUTO_DEMUXER(xbm,       XBM)
 IMAGEAUTO_DEMUXER(xpm,       XPM)
 IMAGEAUTO_DEMUXER(xwd,       XWD)
+
+//
+// Original code end
+//
+
+

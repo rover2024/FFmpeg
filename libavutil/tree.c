@@ -1,3 +1,55 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'tree__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 28,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (const void *, const void *)
+#define LORELIB_CFI_3(FP) LORELIB_CFI(3, FP)
+
+// decl: int (void *, void *)
+#define LORELIB_CFI_6(FP) LORELIB_CFI(6, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * copyright (c) 2006 Michael Niedermayer <michaelni@gmx.at>
  *
@@ -40,7 +92,7 @@ void *av_tree_find(const AVTreeNode *t, void *key,
                    int (*cmp)(const void *key, const void *b), void *next[2])
 {
     if (t) {
-        unsigned int v = cmp(key, t->elem);
+        unsigned int v = LORELIB_CFI_3(cmp)(key, t->elem);
         if (v) {
             if (next)
                 next[v >> 31] = t->elem;
@@ -61,7 +113,7 @@ void *av_tree_insert(AVTreeNode **tp, void *key,
 {
     AVTreeNode *t = *tp;
     if (t) {
-        unsigned int v = cmp(t->elem, key);
+        unsigned int v = LORELIB_CFI_3(cmp)(t->elem, key);
         void *ret;
         if (!v) {
             if (*next)
@@ -157,12 +209,18 @@ void av_tree_enumerate(AVTreeNode *t, void *opaque,
                        int (*enu)(void *opaque, void *elem))
 {
     if (t) {
-        int v = cmp ? cmp(opaque, t->elem) : 0;
+        int v = cmp ? LORELIB_CFI_6(cmp)(opaque, t->elem) : 0;
         if (v >= 0)
             av_tree_enumerate(t->child[0], opaque, cmp, enu);
         if (v == 0)
-            enu(opaque, t->elem);
+            LORELIB_CFI_6(enu)(opaque, t->elem);
         if (v <= 0)
             av_tree_enumerate(t->child[1], opaque, cmp, enu);
     }
 }
+
+//
+// Original code end
+//
+
+

@@ -1,3 +1,55 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'pthread_slice__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 19,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVCodecContext *, void *)
+#define LORELIB_CFI_2(FP) LORELIB_CFI(2, FP)
+
+// decl: int (struct AVCodecContext *, void *, int, int)
+#define LORELIB_CFI_3(FP) LORELIB_CFI(3, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * This file is part of FFmpeg.
  *
@@ -60,8 +112,8 @@ static void worker_func(void *priv, int jobnr, int threadnr, int nb_jobs, int nb
     SliceThreadContext *c = avctx->internal->thread_ctx;
     int ret;
 
-    ret = c->func ? c->func(avctx, (char *)c->args + c->job_size * jobnr)
-                  : c->func2(avctx, c->args, jobnr, threadnr);
+    ret = c->func ? LORELIB_CFI_2(c->func)(avctx, (char *)c->args + c->job_size * jobnr)
+                  : LORELIB_CFI_3(c->func2)(avctx, c->args, jobnr, threadnr);
     if (c->rets)
         c->rets[jobnr] = ret;
 }
@@ -149,3 +201,9 @@ av_cold int ff_slice_thread_init(AVCodecContext *avctx)
     avctx->execute2 = thread_execute2;
     return 0;
 }
+
+//
+// Original code end
+//
+
+

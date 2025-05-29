@@ -1,3 +1,55 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'hmac__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 28,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: void (void *)
+#define LORELIB_CFI_16(FP) LORELIB_CFI(16, FP)
+
+// decl: void (void *, unsigned char *)
+#define LORELIB_CFI_18(FP) LORELIB_CFI(18, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Copyright (C) 2012 Martin Storsjo
  *
@@ -143,15 +195,15 @@ void av_hmac_init(AVHMAC *c, const uint8_t *key, unsigned int keylen)
     int i;
     uint8_t block[MAX_BLOCKLEN];
     if (keylen > c->blocklen) {
-        c->init(c->hash);
+        LORELIB_CFI_16(c->init)(c->hash);
         c->update(c->hash, key, keylen);
-        c->final(c->hash, c->key);
+        LORELIB_CFI_18(c->final)(c->hash, c->key);
         c->keylen = c->hashlen;
     } else {
         memcpy(c->key, key, keylen);
         c->keylen = keylen;
     }
-    c->init(c->hash);
+    LORELIB_CFI_16(c->init)(c->hash);
     for (i = 0; i < c->keylen; i++)
         block[i] = c->key[i] ^ 0x36;
     for (i = c->keylen; i < c->blocklen; i++)
@@ -170,15 +222,15 @@ int av_hmac_final(AVHMAC *c, uint8_t *out, unsigned int outlen)
     int i;
     if (outlen < c->hashlen)
         return AVERROR(EINVAL);
-    c->final(c->hash, out);
-    c->init(c->hash);
+    LORELIB_CFI_18(c->final)(c->hash, out);
+    LORELIB_CFI_16(c->init)(c->hash);
     for (i = 0; i < c->keylen; i++)
         block[i] = c->key[i] ^ 0x5C;
     for (i = c->keylen; i < c->blocklen; i++)
         block[i] = 0x5C;
     c->update(c->hash, block, c->blocklen);
     c->update(c->hash, out, c->hashlen);
-    c->final(c->hash, out);
+    LORELIB_CFI_18(c->final)(c->hash, out);
     return c->hashlen;
 }
 
@@ -190,3 +242,9 @@ int av_hmac_calc(AVHMAC *c, const uint8_t *data, unsigned int len,
     av_hmac_update(c, data, len);
     return av_hmac_final(c, out, outlen);
 }
+
+//
+// Original code end
+//
+
+

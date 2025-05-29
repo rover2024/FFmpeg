@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'hdsenc__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFormatContext *, struct AVIOContext **, const char *, int, struct AVDictionary **)
+#define LORELIB_CFI_13(FP) LORELIB_CFI(13, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Live HDS fragmenter
  * Copyright (c) 2013 Martin Storsjo
@@ -168,7 +217,7 @@ static int write_manifest(AVFormatContext *s, int final)
 
     snprintf(filename, sizeof(filename), "%s/index.f4m", s->url);
     snprintf(temp_filename, sizeof(temp_filename), "%s/index.f4m.tmp", s->url);
-    ret = s->io_open(s, &out, temp_filename, AVIO_FLAG_WRITE, NULL);
+    ret = LORELIB_CFI_13(s->io_open)(s, &out, temp_filename, AVIO_FLAG_WRITE, NULL);
     if (ret < 0) {
         av_log(s, AV_LOG_ERROR, "Unable to open %s for writing\n", temp_filename);
         return ret;
@@ -236,7 +285,7 @@ static int write_abst(AVFormatContext *s, OutputStream *os, int final)
              "%s/stream%d.abst", s->url, index);
     snprintf(temp_filename, sizeof(temp_filename),
              "%s/stream%d.abst.tmp", s->url, index);
-    ret = s->io_open(s, &out, temp_filename, AVIO_FLAG_WRITE, NULL);
+    ret = LORELIB_CFI_13(s->io_open)(s, &out, temp_filename, AVIO_FLAG_WRITE, NULL);
     if (ret < 0) {
         av_log(s, AV_LOG_ERROR, "Unable to open %s for writing\n", temp_filename);
         return ret;
@@ -286,7 +335,7 @@ static int write_abst(AVFormatContext *s, OutputStream *os, int final)
 static int init_file(AVFormatContext *s, OutputStream *os, int64_t start_ts)
 {
     int ret, i;
-    ret = s->io_open(s, &os->out, os->temp_filename, AVIO_FLAG_WRITE, NULL);
+    ret = LORELIB_CFI_13(s->io_open)(s, &os->out, os->temp_filename, AVIO_FLAG_WRITE, NULL);
     if (ret < 0)
         return ret;
     avio_wb32(os->out, 0);
@@ -578,3 +627,9 @@ const FFOutputFormat ff_hds_muxer = {
     .write_trailer  = hds_write_trailer,
     .deinit         = hds_free,
 };
+
+//
+// Original code end
+//
+
+

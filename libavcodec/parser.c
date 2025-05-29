@@ -1,3 +1,58 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'parser__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 19,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVCodecParserContext *)
+#define LORELIB_CFI_4(FP) LORELIB_CFI(4, FP)
+
+// decl: int (struct AVCodecParserContext *, struct AVCodecContext *, const unsigned char **, int *, const unsigned char *, int)
+#define LORELIB_CFI_5(FP) LORELIB_CFI(5, FP)
+
+// decl: void (struct AVCodecParserContext *)
+#define LORELIB_CFI_10(FP) LORELIB_CFI(10, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Audio and Video frame extraction
  * Copyright (c) 2003 Fabrice Bellard
@@ -62,7 +117,7 @@ found:
     s->fetch_timestamp=1;
     s->pict_type = AV_PICTURE_TYPE_I;
     if (parser->parser_init) {
-        ret = parser->parser_init(s);
+        ret = LORELIB_CFI_4(parser->parser_init)(s);
         if (ret != 0)
             goto err_out;
     }
@@ -160,7 +215,7 @@ int av_parser_parse2(AVCodecParserContext *s, AVCodecContext *avctx,
         ff_fetch_timestamp(s, 0, 0, 0);
     }
     /* WARNING: the returned index can be negative */
-    index = s->parser->parser_parse(s, avctx, (const uint8_t **) poutbuf,
+    index = LORELIB_CFI_5(s->parser->parser_parse)(s, avctx, (const uint8_t **) poutbuf,
                                     poutbuf_size, buf, buf_size);
     av_assert0(index > -0x20000000); // The API does not allow returning AVERROR codes
 #define FILL(name) if(s->name > 0 && avctx->name <= 0) avctx->name = s->name
@@ -194,7 +249,7 @@ void av_parser_close(AVCodecParserContext *s)
 {
     if (s) {
         if (s->parser->parser_close)
-            s->parser->parser_close(s);
+            LORELIB_CFI_10(s->parser->parser_close)(s);
         av_freep(&s->priv_data);
         av_free(s);
     }
@@ -293,3 +348,9 @@ void ff_parse_close(AVCodecParserContext *s)
 
     av_freep(&pc->buffer);
 }
+
+//
+// Original code end
+//
+
+

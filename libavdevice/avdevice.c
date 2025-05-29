@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'avdevice__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 16,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (struct AVFormatContext *, int, void *, unsigned long)
+#define LORELIB_CFI_11(FP) LORELIB_CFI(11, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * This file is part of FFmpeg.
  *
@@ -28,7 +77,7 @@ int avdevice_app_to_dev_control_message(struct AVFormatContext *s, enum AVAppToD
 {
     if (!s->oformat || !ffofmt(s->oformat)->control_message)
         return AVERROR(ENOSYS);
-    return ffofmt(s->oformat)->control_message(s, type, data, data_size);
+    return LORELIB_CFI_11(ffofmt(s->oformat)->control_message)(s, type, data, data_size);
 }
 
 int avdevice_dev_to_app_control_message(struct AVFormatContext *s, enum AVDevToAppMessageType type,
@@ -36,7 +85,7 @@ int avdevice_dev_to_app_control_message(struct AVFormatContext *s, enum AVDevToA
 {
     if (!s->control_message_cb)
         return AVERROR(ENOSYS);
-    return s->control_message_cb(s, type, data, data_size);
+    return LORELIB_CFI_11(s->control_message_cb)(s, type, data, data_size);
 }
 
 int avdevice_list_devices(AVFormatContext *s, AVDeviceInfoList **device_list)
@@ -127,3 +176,9 @@ void avdevice_free_list_devices(AVDeviceInfoList **device_list)
     av_freep(&list->devices);
     av_freep(device_list);
 }
+
+//
+// Original code end
+//
+
+

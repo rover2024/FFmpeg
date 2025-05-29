@@ -1,3 +1,52 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'mpeg4videodec__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 19,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: void (short *)
+#define LORELIB_CFI_7(FP) LORELIB_CFI(7, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * MPEG-4 decoder
  * Copyright (c) 2000,2001 Fabrice Bellard
@@ -1664,7 +1713,7 @@ static int mpeg4_decode_partitioned_mb(MpegEncContext *s, int16_t block[6][64])
 
     if (!IS_SKIP(mb_type)) {
         int i;
-        s->bdsp.clear_blocks(s->block[0]);
+        LORELIB_CFI_7(s->bdsp.clear_blocks)(s->block[0]);
         /* decode each block */
         for (i = 0; i < 6; i++) {
             if (mpeg4_decode_block(ctx, block[i], i, cbp & 32, s->mb_intra,
@@ -1745,7 +1794,7 @@ static int mpeg4_decode_mb(MpegEncContext *s, int16_t block[6][64])
             }
         } while (cbpc == 20);
 
-        s->bdsp.clear_blocks(s->block[0]);
+        LORELIB_CFI_7(s->bdsp.clear_blocks)(s->block[0]);
         dquant      = cbpc & 8;
         s->mb_intra = ((cbpc & 4) != 0);
         if (s->mb_intra)
@@ -1893,7 +1942,7 @@ static int mpeg4_decode_mb(MpegEncContext *s, int16_t block[6][64])
             if (modb2) {
                 cbp = 0;
             } else {
-                s->bdsp.clear_blocks(s->block[0]);
+                LORELIB_CFI_7(s->bdsp.clear_blocks)(s->block[0]);
                 cbp = get_bits(&s->gb, 6);
             }
 
@@ -2030,7 +2079,7 @@ intra:
         if (!s->progressive_sequence)
             s->interlaced_dct = get_bits1(&s->gb);
 
-        s->bdsp.clear_blocks(s->block[0]);
+        LORELIB_CFI_7(s->bdsp.clear_blocks)(s->block[0]);
         /* decode each block */
         for (i = 0; i < 6; i++) {
             if (mpeg4_decode_block(ctx, block[i], i, cbp & 32,
@@ -4062,3 +4111,9 @@ const FFCodec ff_mpeg4_decoder = {
                            },
 };
 #endif /* CONFIG_MPEG4_DECODER */
+
+//
+// Original code end
+//
+
+
