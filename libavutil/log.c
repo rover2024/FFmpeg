@@ -356,14 +356,12 @@ static void format_line(void *avcl, int level, const char *fmt, va_list vl,
     }
 }
 
-void av_log_format_line(void *ptr, int level, const char *fmt, va_list vl,
-                        char *line, int line_size, int *print_prefix)
+void av_log_format_line(void *ptr, int level, char *line, int line_size, int *print_prefix, const char *fmt, va_list vl)
 {
-    av_log_format_line2(ptr, level, fmt, vl, line, line_size, print_prefix);
+    av_log_format_line2(ptr, level, line, line_size, print_prefix, fmt, vl);
 }
 
-int av_log_format_line2(void *ptr, int level, const char *fmt, va_list vl,
-                        char *line, int line_size, int *print_prefix)
+int av_log_format_line2(void *ptr, int level, char *line, int line_size, int *print_prefix, const char *fmt, va_list vl)
 {
     AVBPrint part[5];
     int ret;

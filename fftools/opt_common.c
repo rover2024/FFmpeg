@@ -1135,7 +1135,7 @@ static void log_callback_report(void *ptr, int level, const char *fmt, va_list v
 
     va_copy(vl2, vl);
     av_log_default_callback(ptr, level, fmt, vl);
-    av_log_format_line(ptr, level, fmt, vl2, line, sizeof(line), &print_prefix);
+    av_log_format_line(ptr, level, line, sizeof(line), &print_prefix, fmt, vl2);
     va_end(vl2);
     if (report_file_level >= level) {
         fputs(line, report_file);

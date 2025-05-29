@@ -1,3 +1,55 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'ffprobe__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 19,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: AVClassCategory (void *)
+#define LORELIB_CFI_1(FP) LORELIB_CFI(1, FP)
+
+// decl: const char *(void *)
+#define LORELIB_CFI_12(FP) LORELIB_CFI(12, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /*
  * Copyright (c) 2007-2010 Stefano Sabatini
  *
@@ -362,7 +414,7 @@ static void log_callback(void *ptr, int level, const char *fmt, va_list vl)
 
     va_copy(vl2, vl);
     av_log_default_callback(ptr, level, fmt, vl);
-    av_log_format_line(ptr, level, fmt, vl2, line, sizeof(line), &print_prefix);
+    av_log_format_line(ptr, level, line, sizeof(line), &print_prefix, fmt, vl2);
     va_end(vl2);
 
 #if HAVE_THREADS
@@ -375,9 +427,9 @@ static void log_callback(void *ptr, int level, const char *fmt, va_list vl)
 
         log_buffer = new_log_buffer;
         memset(&log_buffer[log_buffer_size], 0, sizeof(log_buffer[log_buffer_size]));
-        log_buffer[log_buffer_size].context_name= avc ? av_strdup(avc->item_name(ptr)) : NULL;
+        log_buffer[log_buffer_size].context_name= avc ? av_strdup(LORELIB_CFI_12(avc->item_name)(ptr)) : NULL;
         if (avc) {
-            if (avc->get_category) log_buffer[log_buffer_size].category = avc->get_category(ptr);
+            if (avc->get_category) log_buffer[log_buffer_size].category = LORELIB_CFI_1(avc->get_category)(ptr);
             else                   log_buffer[log_buffer_size].category = avc->category;
         }
         log_buffer[log_buffer_size].log_level   = level;
@@ -389,9 +441,9 @@ static void log_callback(void *ptr, int level, const char *fmt, va_list vl)
             AVClass** parent = *(AVClass ***) (((uint8_t *) ptr) +
                                    avc->parent_log_context_offset);
             if (parent && *parent) {
-                log_buffer[log_buffer_size].parent_name = av_strdup((*parent)->item_name(parent));
+                log_buffer[log_buffer_size].parent_name = av_strdup(LORELIB_CFI_12((*parent)->item_name)(parent));
                 log_buffer[log_buffer_size].parent_category =
-                    (*parent)->get_category ? (*parent)->get_category(parent) :(*parent)->category;
+                    (*parent)->get_category ? LORELIB_CFI_1((*parent)->get_category)(parent) :(*parent)->category;
             }
         }
         log_buffer_size ++;
@@ -3231,3 +3283,9 @@ end:
 
     return ret < 0;
 }
+
+//
+// Original code end
+//
+
+

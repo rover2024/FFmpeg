@@ -4,6 +4,7 @@ LIBAVCODEC_MAJOR {
         avcodec_*;
         avpriv_*;
         avsubtitle_free;
+        Lore*;
     local:
         *;
 };

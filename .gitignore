@@ -45,3 +45,8 @@
 /libavcodec/vulkan/*.c
 /libavfilter/vulkan/*.c
 /.*/
+
+/build
+/.cache
+/ffbuild/release
+/ffbuild/debug
