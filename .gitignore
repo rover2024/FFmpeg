@@ -50,3 +50,4 @@
 /.cache
 /ffbuild/release
 /ffbuild/debug
+/ffbuild/release-deployed

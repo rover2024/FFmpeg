@@ -1664,9 +1664,9 @@ int sch_wait(Scheduler *sch, uint64_t timeout_us, int64_t *transcode_ts)
     pthread_mutex_lock(&sch->finish_lock);
 
     if (sch->nb_mux_done < sch->nb_mux) {
-        struct timespec tv = { .tv_sec  =  timeout_us / 1000000,
-                               .tv_nsec = (timeout_us % 1000000) * 1000 };
-        pthread_cond_timedwait(&sch->finish_cond, &sch->finish_lock, &tv);
+        // struct timespec tv = { .tv_sec  =  timeout_us / 1000000,
+        //                        .tv_nsec = (timeout_us % 1000000) * 1000 };
+        // pthread_cond_timedwait(&sch->finish_cond, &sch->finish_lock, &tv);
     }
 
     // abort transcoding if any task failed
